@@ -1,4 +1,7 @@
-const API_URL = "http://127.0.0.1:8000";
+const BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    ? "http://127.0.0.1:8000"
+    : "https://study-time-backend.onrender.com";
+const API_URL = BASE_URL.replace(/\/+$/, "");
 
 function initTypewriter() {
     const text = "Smart Study Tracker";
