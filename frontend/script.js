@@ -1,5 +1,9 @@
-const BASE_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-    ? "http://127.0.0.1:8000"
+const isLocal = window.location.hostname === "localhost" || 
+                window.location.hostname === "127.0.0.1" || 
+                window.location.hostname === "" || 
+                window.location.protocol === "file:";
+const BASE_URL = isLocal 
+    ? "http://127.0.0.1:8000" 
     : "https://study-time-backend.onrender.com";
 const API_URL = BASE_URL.replace(/\/+$/, "");
 
