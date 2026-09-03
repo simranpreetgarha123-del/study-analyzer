@@ -160,18 +160,181 @@ async function getStats(date, goal) {
         const response = await fetch(`${API_URL}/stats?date=${date}&goal=${goal}`);
         const stats = await response.json();
 
-        document.getElementById("goal").innerText = stats.daily_goal + " Hours";
-        document.getElementById("studied").innerText = stats.studied + " Hours";
-        document.getElementById("remaining").innerText = stats.remaining + " Hours";
-        document.getElementById("productivity").innerText = stats.productivity + "%";
         document.getElementById("status").innerText = stats.status;
         document.getElementById("doingGood").innerText = stats.doing_good;
         document.getElementById("improvement").innerText = stats.improvement;
-        document.getElementById("consistency").innerText = stats.consistency;
-        document.getElementById("intensity").innerText = stats.intensity;
-        document.getElementById("pattern").innerText = stats.pattern;
-        document.getElementById("focusBalance").innerText = stats.focus_balance;
+
+        renderCharts(stats);
     } catch (error) {
         console.error("Error getting statistics:", error);
     }
+}
+
+let chartInstances = {};
+
+function destroyChart(id) {
+    if (chartInstances[id]) {
+        chartInstances[id].destroy();
+        chartInstances[id] = null;
+    }
+}
+
+function scoreFromLabel(label) {
+    const map = {
+        "Excellent": 5, "Good": 4, "Average": 3, "Low": 2, "Very Low": 1,
+        "Very Long Sessions": 5, "Long Sessions": 4, "Moderate Sessions": 3,
+        "Short Sessions": 2, "Very Short Sessions": 1,
+        "Multiple Topics": 5, "Varied Topics": 4, "Some Variety": 3,
+        "Focused on One Area": 2, "Single Topic": 1,
+        "Consistent Pattern": 5, "Need More Sessions": 3, "Irregular Pattern": 2,
+        "No Pattern": 1
+    };
+    for (const key in map) {
+        if (label && label.includes(key)) return map[key];
+    }
+    return 2;
+}
+
+function renderCharts(stats) {
+    const navy = "#002b49";
+    const gold = "#d9a74a";
+    const cream = "#f7f4ec";
+    const teal = "#1a7f8e";
+    const rose = "#c0392b";
+    const green = "#27ae60";
+
+    const studied = parseFloat(stats.studied) || 0;
+    const goal = parseFloat(stats.daily_goal) || 1;
+    const remaining = parseFloat(stats.remaining) || 0;
+    const productivity = parseFloat(stats.productivity) || 0;
+
+    destroyChart("progressChart");
+    chartInstances["progressChart"] = new Chart(
+        document.getElementById("progressChart"),
+        {
+            type: "doughnut",
+            data: {
+                labels: ["Studied", "Remaining"],
+                datasets: [{
+                    data: [studied, Math.max(remaining, 0)],
+                    backgroundColor: [gold, "#e8e1d1"],
+                    borderColor: [navy, "#ccc"],
+                    borderWidth: 2,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                cutout: "70%",
+                plugins: {
+                    legend: { position: "bottom", labels: { color: navy, font: { family: "Plus Jakarta Sans", weight: "700" }, padding: 16 } },
+                    tooltip: { callbacks: { label: (ctx) => ` ${ctx.label}: ${ctx.parsed} hrs` } }
+                }
+            }
+        }
+    );
+
+    destroyChart("productivityChart");
+    chartInstances["productivityChart"] = new Chart(
+        document.getElementById("productivityChart"),
+        {
+            type: "bar",
+            data: {
+                labels: ["Productivity", "Remaining"],
+                datasets: [{
+                    label: "Score (%)",
+                    data: [productivity, Math.max(100 - productivity, 0)],
+                    backgroundColor: [navy, "#e8e1d1"],
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                indexAxis: "y",
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: (ctx) => ` ${ctx.parsed.x.toFixed(1)}%` } }
+                },
+                scales: {
+                    x: {
+                        max: 100,
+                        grid: { color: "rgba(0,43,73,0.06)" },
+                        ticks: { color: navy, font: { family: "Plus Jakarta Sans" }, callback: (v) => v + "%" }
+                    },
+                    y: { grid: { display: false }, ticks: { color: navy, font: { family: "Plus Jakarta Sans", weight: "700" } } }
+                }
+            }
+        }
+    );
+
+    destroyChart("insightsChart");
+    chartInstances["insightsChart"] = new Chart(
+        document.getElementById("insightsChart"),
+        {
+            type: "polarArea",
+            data: {
+                labels: ["Consistency", "Intensity", "Pattern", "Focus Balance"],
+                datasets: [{
+                    data: [
+                        scoreFromLabel(stats.consistency),
+                        scoreFromLabel(stats.intensity),
+                        scoreFromLabel(stats.pattern),
+                        scoreFromLabel(stats.focus_balance)
+                    ],
+                    backgroundColor: [
+                        "rgba(0, 43, 73, 0.75)",
+                        "rgba(217, 167, 74, 0.75)",
+                        "rgba(26, 127, 142, 0.75)",
+                        "rgba(39, 174, 96, 0.75)"
+                    ],
+                    borderWidth: 1,
+                    borderColor: "#fff"
+                }]
+            },
+            options: {
+                scales: { r: { min: 0, max: 5, ticks: { stepSize: 1, display: false }, grid: { color: "rgba(0,43,73,0.1)" } } },
+                plugins: {
+                    legend: { position: "bottom", labels: { color: navy, font: { family: "Plus Jakarta Sans", weight: "700" }, padding: 12 } },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => {
+                                const labels = [stats.consistency, stats.intensity, stats.pattern, stats.focus_balance];
+                                return ` ${labels[ctx.dataIndex] || ""}`;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    );
+
+    destroyChart("hoursChart");
+    chartInstances["hoursChart"] = new Chart(
+        document.getElementById("hoursChart"),
+        {
+            type: "bar",
+            data: {
+                labels: ["Goal", "Studied", "Remaining"],
+                datasets: [{
+                    label: "Hours",
+                    data: [goal, studied, Math.max(remaining, 0)],
+                    backgroundColor: [navy, gold, "#e8e1d1"],
+                    borderRadius: 10,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: (ctx) => ` ${ctx.parsed.y} hrs` } }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: navy, font: { family: "Plus Jakarta Sans", weight: "700" } } },
+                    y: {
+                        grid: { color: "rgba(0,43,73,0.06)" },
+                        ticks: { color: navy, font: { family: "Plus Jakarta Sans" }, callback: (v) => v + "h" }
+                    }
+                }
+            }
+        }
+    );
 }

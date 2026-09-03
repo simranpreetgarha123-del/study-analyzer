@@ -21,7 +21,7 @@
         <main class="container">
             <div class="box card-settings">
                 <h2>Daily Settings</h2>
-                
+
                 <div class="form-group">
                     <label for="selectedDate">Select Date</label>
                     <input type="date" id="selectedDate" onchange="loadDailyData()">
@@ -54,70 +54,57 @@
                 <button class="primary-btn" onclick="addRecord()">Add Study Session</button>
             </div>
 
-            <div class="box performance-box">
-                <h2>Daily Performance</h2>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3>Goal</h3>
-                        <p id="goal">0 Hours</p>
-                    </div>
-
-                    <div class="stat-card">
-                        <h3>Studied</h3>
-                        <p id="studied">0 Hours</p>
-                    </div>
-
-                    <div class="stat-card">
-                        <h3>Remaining</h3>
-                        <p id="remaining">0 Hours</p>
-                    </div>
-
-                    <div class="stat-card">
-                        <h3>Productivity</h3>
-                        <p id="productivity">0%</p>
-                    </div>
-                </div>
+            <div class="box numpy-analysis-box">
+                <h2 class="numpy-heading">NumPy Analysis</h2>
 
                 <div class="status-banner">
                     <h2 id="status">Start Studying</h2>
                 </div>
-            </div>
 
-            <div class="box insights-box">
-                <h2>Study Insights</h2>
-
-                <div class="insights-grid">
-                    <div class="insight-card">
-                        <h3>Consistency</h3>
-                        <p id="consistency">No data</p>
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3 class="chart-title">Study Progress</h3>
+                        <p class="chart-sub">Goal vs Studied vs Remaining</p>
+                        <div class="chart-container">
+                            <canvas id="progressChart"></canvas>
+                        </div>
                     </div>
 
-                    <div class="insight-card">
-                        <h3>Study Intensity</h3>
-                        <p id="intensity">No data</p>
+                    <div class="chart-card">
+                        <h3 class="chart-title">Productivity Score</h3>
+                        <p class="chart-sub">Daily productivity percentage</p>
+                        <div class="chart-container">
+                            <canvas id="productivityChart"></canvas>
+                        </div>
                     </div>
 
-                    <div class="insight-card">
-                        <h3>Study Pattern</h3>
-                        <p id="pattern">No data</p>
+                    <div class="chart-card">
+                        <h3 class="chart-title">Study Insights</h3>
+                        <p class="chart-sub">Consistency, Intensity, Pattern, Focus</p>
+                        <div class="chart-container">
+                            <canvas id="insightsChart"></canvas>
+                        </div>
                     </div>
 
-                    <div class="insight-card">
-                        <h3>Focus Balance</h3>
-                        <p id="focusBalance">No data</p>
+                    <div class="chart-card">
+                        <h3 class="chart-title">Hours Breakdown</h3>
+                        <p class="chart-sub">Time allocation overview</p>
+                        <div class="chart-container">
+                            <canvas id="hoursChart"></canvas>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="box analysis-box good-box">
-                <h2>What You're Doing Well</h2>
-                <p id="doingGood">Add study sessions to receive analysis.</p>
-            </div>
-
-            <div class="box analysis-box improve-box">
-                <h2>Where You Can Improve</h2>
-                <p id="improvement">Your improvement suggestions will appear here.</p>
+                <div class="analysis-cards-grid">
+                    <div class="analysis-card good-card">
+                        <h3>What You're Doing Well</h3>
+                        <p id="doingGood">Add study sessions to receive analysis.</p>
+                    </div>
+                    <div class="analysis-card improve-card">
+                        <h3>Where You Can Improve</h3>
+                        <p id="improvement">Your improvement suggestions will appear here.</p>
+                    </div>
+                </div>
             </div>
 
             <div class="box sessions-box">
@@ -129,6 +116,7 @@
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
